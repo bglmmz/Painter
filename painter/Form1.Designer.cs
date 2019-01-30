@@ -54,6 +54,7 @@
             // btnNext
             // 
             this.btnNext.BackColor = System.Drawing.SystemColors.Control;
+            this.btnNext.Enabled = false;
             this.btnNext.Location = new System.Drawing.Point(81, 1);
             this.btnNext.Name = "btnNext";
             this.btnNext.Size = new System.Drawing.Size(75, 23);
@@ -64,6 +65,7 @@
             // 
             // btnPrev
             // 
+            this.btnPrev.Enabled = false;
             this.btnPrev.Location = new System.Drawing.Point(0, 1);
             this.btnPrev.Name = "btnPrev";
             this.btnPrev.Size = new System.Drawing.Size(75, 23);
