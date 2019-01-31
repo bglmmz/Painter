@@ -118,6 +118,7 @@ namespace draw_direct
                 pictureBox1.Load(fileName);
                 review = true;
             }
+            working = false;
         }
 
         private void btnNext_Click(object sender, EventArgs e)
@@ -131,8 +132,8 @@ namespace draw_direct
                         //var fileName = root + @"\" + path + @"\" + curPageNo + ".png";
                         //pictureBox1.Image.Save(fileName, System.Drawing.Imaging.ImageFormat.Png);
 
-                        var fileName = root + @"\" + path + @"\" + curPageNo + ".jpg";
-                        pictureBox1.Image.Save(fileName);
+                        var fileName = root + @"\" + path + @"\" + curPageNo + ".png";
+                        pictureBox1.Image.Save(fileName, System.Drawing.Imaging.ImageFormat.Png);
                     }
                     curPageNo++;
                     maxPageNo = curPageNo;
@@ -140,8 +141,14 @@ namespace draw_direct
                     maxPageSaved = false;
                     review = false;
 
-                    g = pictureBox1.CreateGraphics();
+
+                    //g = Graphics.FromImage(bitmap);
+                    //g.Clear(pictureBox1.BackColor);
+                    pictureBox1.Image = null;
+                    //g = Graphics.FromImage(pictureBox1.Image);
                     g.Clear(pictureBox1.BackColor);
+
+                    working = true;
                     return;
                 }
                 else
@@ -149,6 +156,7 @@ namespace draw_direct
                     maxPageDrawed = false;
                     maxPageSaved = false;
                     review = false;
+                    working = true;
                     return;
                 }
 
