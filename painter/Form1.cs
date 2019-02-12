@@ -16,7 +16,7 @@ namespace draw_direct
     {
 
         private List<string> dataList = new List<string>();
-        private int maxPageNo = 1;      
+        private int maxPageNo = 1;
         private bool maxPageDrawed = false;
         private bool maxPageSaved = false;
         private int curPageNo = 1;
@@ -24,7 +24,7 @@ namespace draw_direct
         private string root;
         private bool working = false;
         private bool review = false;
-        
+
 
 
         private Point p1, p2;//定义两个点（启点，终点）
@@ -47,18 +47,19 @@ namespace draw_direct
             root = Application.StartupPath;
             //Thread t = new Thread(Draw);
             //t.Start();
+            initData();
         }
 
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
-            if (working) { 
+            if (working) {
                 p1 = new Point(e.X, e.Y);
                 p2 = new Point(e.X, e.Y);
                 drawing = true;
                 if (!maxPageDrawed && curPageNo == maxPageNo)
                 {
                     maxPageDrawed = true;
-            }
+                }
             }
 
         }
@@ -68,7 +69,7 @@ namespace draw_direct
             if (working) {
                 drawing = false;
             }
-            
+
         }
 
         private void btnStart_Click(object sender, EventArgs e)
@@ -79,9 +80,9 @@ namespace draw_direct
 
                 maxPageDrawed = false;
                 maxPageSaved = false;
-                curPageNo = 1;                
+                curPageNo = 1;
             }
-            try { 
+            try {
                 path = System.Guid.NewGuid().ToString();
 
                 Directory.CreateDirectory(root + @"\" + path);
@@ -96,6 +97,7 @@ namespace draw_direct
             working = true;
             btnPrev.Enabled = true;
             btnNext.Enabled = true;
+            Draw();
         }
 
         private void btnPrev_Click(object sender, EventArgs e)
@@ -113,7 +115,7 @@ namespace draw_direct
                 }
 
             }
-           if (curPageNo > 1)
+            if (curPageNo > 1)
             {
                 curPageNo--;
                 var fileName = root + @"\" + path + @"\" + curPageNo + ".png";
@@ -127,8 +129,8 @@ namespace draw_direct
         {
 
             if (curPageNo == maxPageNo)
-            {  
-                if(maxPageDrawed ){
+            {
+                if (maxPageDrawed) {
                     if (!maxPageSaved && !review)
                     {
                         //var fileName = root + @"\" + path + @"\" + curPageNo + ".png";
@@ -168,14 +170,14 @@ namespace draw_direct
                 curPageNo++;
                 var fileName = root + @"\" + path + @"\" + curPageNo + ".png";
                 pictureBox1.Load(fileName);
-            }       
+            }
         }
 
 
 
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
-            if (working) { 
+            if (working) {
                 if (e.Button == MouseButtons.Left)
                 {
                     if (drawing)
@@ -188,7 +190,7 @@ namespace draw_direct
                         g.DrawLine(new Pen(Color.Blue, 2), p2, currentPoint);
                         pictureBox1.Image = (Image)bitmap;
                         p2.X = currentPoint.X;
-                        p2.Y = currentPoint.Y;                       
+                        p2.Y = currentPoint.Y;
                     }
 
                 }
@@ -203,13 +205,48 @@ namespace draw_direct
 
         private void Draw()
         {
-            
+
             //Point currentPoint = new Point(e.X, e.Y);
             //g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;//消除锯齿
             //g.DrawLine(new Pen(Color.Blue, 2), p2, currentPoint);
 
             //p2.X = currentPoint.X;
             //p2.Y = currentPoint.Y;
+            for (int i=0; i<dataList.Count; i++)
+            {
+                Dot[] dotList = parseToDot(dataList[i]);
+                for(int j=0; j<dotList.Length; j++)
+                {
+                    Dot dot = dotList[j];
+
+                    int x = (int)((1280.00 / 32767.00) * (dot.x - dot.width / 2));
+
+                    int y = (int)((800.00 / 32767.00) * (dot.y - dot.height / 2));
+     
+                    float w = (float)((1280.00 / 32767.00) * dot.width);
+
+                    float h = (float)((800.00 / 32767.00) * dot.height);
+     
+                    Point currentPoint = new Point(x, y);
+
+                    if (p2.IsEmpty && dot.status==7) {
+                        p2 = currentPoint;
+                    }
+
+                    g = Graphics.FromImage(bitmap);
+                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;//消除锯齿
+                    g.DrawLine(new Pen(Color.Blue, w), p2, currentPoint);
+                    pictureBox1.Image = (Image)bitmap;
+                    p2.X = currentPoint.X;
+                    p2.Y = currentPoint.Y;
+
+                    if (dot.status == 4)
+                    {
+                        p2 = Point.Empty;
+                    }
+
+                }
+            }
         }
 
         private void initData()
@@ -304,6 +341,47 @@ namespace draw_direct
             dataList.Add("a10701100580176a00c8020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000");
             dataList.Add("a10701f0049017460050020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000");
             dataList.Add("a10401f0049017460050020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000");
+        }
+
+        private Dot[] parseToDot(string s)
+        {
+            byte[] data = HexStringToByteArray(s);
+            int count = (int)data[61];
+
+            Dot[] result = new Dot[count];
+            for(int i=0; i<count; i++)
+            {
+                int status = data[10 * i + 1];
+                int x = (data[10 * i + 4] & 0xFF) << 8 | data[10 * i + 3];
+                int y = (data[10 * i + 6] & 0xFF) << 8 | data[10 * i + 5];
+                int width = (data[10 * i + 8] & 0xFF) << 8 | data[10 * i + 7];
+                int height = (data[10 * i + 10] & 0xFF) << 8 | data[10 * i + 9];
+                Dot dot = new Dot();
+                dot.status = status;
+                dot.x = x;
+                dot.y = y;
+                dot.width = width;
+                dot.height = height;
+                result[i] = dot;
+
+            }
+
+            return result;
+        }
+
+        private byte[] HexStringToByteArray(string s)
+        {
+            byte[] buffer = new byte[s.Length / 2];
+            for (int i = 0; i < s.Length; i += 2)
+                buffer[i / 2] = (byte)Convert.ToByte(s.Substring(i, 2), 16);
+            return buffer;
+        }
+
+        class Dot
+        {
+            public int status;
+            public int x, y;
+            public int width, height;
         }
     }   
 }
