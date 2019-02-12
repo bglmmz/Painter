@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -187,7 +188,7 @@ namespace draw_direct
 
                         g = Graphics.FromImage(bitmap);
                         g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;//消除锯齿
-                        g.DrawLine(new Pen(Color.Blue, 2), p2, currentPoint);
+                        g.DrawLine(new Pen(Color.Blue, 6), p2, currentPoint);
                         pictureBox1.Image = (Image)bitmap;
                         p2.X = currentPoint.X;
                         p2.Y = currentPoint.Y;
@@ -202,6 +203,108 @@ namespace draw_direct
 
         //}
 
+        private void Draw_FillRectangle()
+        {
+
+            //Point currentPoint = new Point(e.X, e.Y);
+            //g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;//消除锯齿
+            //g.DrawLine(new Pen(Color.Blue, 2), p2, currentPoint);
+
+            //p2.X = currentPoint.X;
+            //p2.Y = currentPoint.Y;
+            SolidBrush brush = new SolidBrush(Color.Blue);
+
+            for (int i = 0; i < dataList.Count; i++)
+            {
+                Dot[] dotList = parseToDot(dataList[i]);
+                for (int j = 0; j < dotList.Length; j++)
+                {
+                    Dot dot = dotList[j];
+
+                    int x = (int)((1280.00 / 32767.00) * (dot.x - dot.width / 2));
+
+                    int y = (int)((800.00 / 32767.00) * (dot.y - dot.height / 2));
+
+                    float w = (float)((1280.00 / 32767.00) * dot.width);
+
+                    float h = (float)((800.00 / 32767.00) * dot.height);
+
+                    Point currentPoint = new Point(x, y);
+
+                    if (p2.IsEmpty && dot.status == 7)
+                    {   
+                        p2 = currentPoint;
+                    }
+
+                    g = Graphics.FromImage(bitmap);
+                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;//消除锯齿
+
+                    
+                    g.FillRectangle(brush, x,y, x+w, y+h);
+
+                    pictureBox1.Image = (Image)bitmap;
+
+                    pictureBox1.Refresh();
+
+                    Thread.Sleep(100);
+
+                }                
+            }
+        }
+
+        private void Draw2()
+        {
+
+            //Point currentPoint = new Point(e.X, e.Y);
+            //g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;//消除锯齿
+            //g.DrawLine(new Pen(Color.Blue, 2), p2, currentPoint);
+
+            //p2.X = currentPoint.X;
+            //p2.Y = currentPoint.Y;
+            for (int i = 0; i < dataList.Count; i++)
+            {
+                Dot[] dotList = parseToDot(dataList[i]);
+                for (int j = 0; j < dotList.Length; j++)
+                {
+                    Dot dot = dotList[j];
+
+                    int x = (int)((1280.00 / 32767.00) * (dot.x - dot.width / 2));
+
+                    int y = (int)((800.00 / 32767.00) * (dot.y - dot.height / 2));
+
+                    float w = (float)((1280.00 / 32767.00) * dot.width);
+
+                    float h = (float)((800.00 / 32767.00) * dot.height);
+
+                    Point currentPoint = new Point(x, y);
+
+                    if (p2.IsEmpty && dot.status == 7)
+                    {
+                        p2 = currentPoint;
+                    }
+
+                    g = Graphics.FromImage(bitmap);
+                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;//消除锯齿
+                    Pen pen = new Pen(Color.Blue, 1);
+                    pen.StartCap = LineCap.Round;
+                    pen.EndCap = LineCap.Round;
+
+                    g.DrawRectangle(pen, x,y,w,h);
+                    pictureBox1.Image = (Image)bitmap;
+                    p2.X = currentPoint.X;
+                    p2.Y = currentPoint.Y;
+
+                    if (dot.status == 4)
+                    {
+                        p2 = Point.Empty;
+                    }
+
+                    pictureBox1.Refresh();
+
+                    Thread.Sleep(100);
+                }
+            }
+        }
 
         private void Draw()
         {
@@ -232,10 +335,14 @@ namespace draw_direct
                     if (p2.IsEmpty && dot.status==7) {
                         p2 = currentPoint;
                     }
-
+                    
                     g = Graphics.FromImage(bitmap);
                     g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;//消除锯齿
-                    g.DrawLine(new Pen(Color.Blue, w), p2, currentPoint);
+
+                    Pen pen = new Pen(Color.Blue, w);
+                    pen.StartCap = LineCap.NoAnchor;
+                    pen.EndCap = LineCap.NoAnchor;
+                    g.DrawLine(pen, p2, currentPoint);
                     pictureBox1.Image = (Image)bitmap;
                     p2.X = currentPoint.X;
                     p2.Y = currentPoint.Y;
@@ -245,6 +352,9 @@ namespace draw_direct
                         p2 = Point.Empty;
                     }
 
+                    pictureBox1.Refresh();
+
+                    Thread.Sleep(10);
                 }
             }
         }
