@@ -25,6 +25,7 @@ namespace draw_direct
         private string root;
         private bool working = false;
         private bool review = false;
+       
 
 
 
@@ -75,29 +76,41 @@ namespace draw_direct
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            if (maxPageDrawed && !maxPageSaved && !review) {
-                var fileName = root + @"\" + path + @"\" + curPageNo + ".png";
-                pictureBox1.Image.Save(fileName, System.Drawing.Imaging.ImageFormat.Png);
+            //if (maxPageDrawed && !maxPageSaved && !review) {
+            //    var fileName = root + @"\" + path + @"\" + curPageNo + ".png";
+            //    if (System.IO.File.Exists(fileName))
+            //    {
+            //        Image clone = (Image)pictureBox1.Image.Clone();
+            //        pictureBox1.Image.Dispose();
 
-                maxPageDrawed = false;
-                maxPageSaved = false;
-                curPageNo = 1;
-            }
-            try {
-                path = System.Guid.NewGuid().ToString();
+            //        System.IO.File.Delete(fileName);
+            //        pictureBox1.Image = clone;
+            //    }
 
-                Directory.CreateDirectory(root + @"\" + path);
-            }
-            catch
-            {
-                MessageBox.Show("系统异常");
-                System.Environment.Exit(-1);
-            }
-            g = pictureBox1.CreateGraphics();
-            g.Clear(pictureBox1.BackColor);
-            working = true;
-            btnPrev.Enabled = true;
-            btnNext.Enabled = true;
+                
+
+
+            //    pictureBox1.Image.Save(fileName, System.Drawing.Imaging.ImageFormat.Png);
+
+            //    maxPageDrawed = false;
+            //    maxPageSaved = false;
+            //    curPageNo = 1;
+            //}
+            //try {
+            //    path = System.Guid.NewGuid().ToString();
+
+            //    Directory.CreateDirectory(root + @"\" + path);
+            //}
+            //catch
+            //{
+            //    MessageBox.Show("系统异常");
+            //    System.Environment.Exit(-1);
+            //}
+            //g = pictureBox1.CreateGraphics();
+            //g.Clear(pictureBox1.BackColor);
+            //working = true;
+            //btnPrev.Enabled = true;
+            //btnNext.Enabled = true;
             Draw();
         }
 
@@ -110,7 +123,17 @@ namespace draw_direct
                     if (!maxPageSaved && !review)
                     {
                         var fileName = root + @"\" + path + @"\" + curPageNo + ".png";
-                        pictureBox1.Image.Save(fileName, System.Drawing.Imaging.ImageFormat.Png);
+                        if (System.IO.File.Exists(fileName))
+                        {
+                            Image clone = (Image)pictureBox1.Image.Clone();
+                            pictureBox1.Image.Dispose();
+
+                            System.IO.File.Delete(fileName);
+                            pictureBox1.Image = clone;
+                        }
+                        pictureBox1.Image.Save(fileName, System.Drawing.Imaging.ImageFormat.Png);                        
+
+                        maxPageSaved = true;
                     }
 
                 }
@@ -128,10 +151,47 @@ namespace draw_direct
 
         private void btnNext_Click(object sender, EventArgs e)
         {
-
-            if (curPageNo == maxPageNo)
+            if (curPageNo < maxPageNo)
             {
-                if (maxPageDrawed) {
+                curPageNo++;
+
+                if (curPageNo < maxPageNo)
+                {
+                    var fileName = root + @"\" + path + @"\" + curPageNo + ".png";
+                    pictureBox1.Load(fileName);
+                }
+                else
+                {
+                    if (maxPageDrawed && maxPageSaved)
+                    {
+                        var fileName = root + @"\" + path + @"\" + curPageNo + ".png";
+                        pictureBox1.Load(fileName);
+
+                        maxPageDrawed = true;
+                    }
+                    else
+                    {
+                        //g = Graphics.FromImage(bitmap);
+                        //g.Clear(pictureBox1.BackColor);
+                        pictureBox1.Image = null;
+                        //g = Graphics.FromImage(pictureBox1.Image);
+                        g.Clear(pictureBox1.BackColor);
+
+                        maxPageDrawed = false;
+
+
+                    }                   
+                    maxPageSaved = false;
+                    review = false;
+                    review = false;
+                    working = true;
+                }
+
+            }
+            else
+            { 
+                if (maxPageDrawed)
+                {
                     if (!maxPageSaved && !review)
                     {
                         //var fileName = root + @"\" + path + @"\" + curPageNo + ".png";
@@ -149,7 +209,8 @@ namespace draw_direct
 
                     //g = Graphics.FromImage(bitmap);
                     //g.Clear(pictureBox1.BackColor);
-                    pictureBox1.Image = null;
+                    //pictureBox1.Image = null;
+                    pictureBox1.Image.Dispose();
                     //g = Graphics.FromImage(pictureBox1.Image);
                     g.Clear(pictureBox1.BackColor);
 
@@ -166,12 +227,56 @@ namespace draw_direct
                 }
 
             }
-            else if (curPageNo < maxPageNo)
-            {
-                curPageNo++;
-                var fileName = root + @"\" + path + @"\" + curPageNo + ".png";
-                pictureBox1.Load(fileName);
-            }
+
+
+
+            //if (curPageNo == maxPageNo)
+            //{
+            //    if (maxPageDrawed) {
+            //        if (!maxPageSaved && !review)
+            //        {
+            //            //var fileName = root + @"\" + path + @"\" + curPageNo + ".png";
+            //            //pictureBox1.Image.Save(fileName, System.Drawing.Imaging.ImageFormat.Png);
+
+            //            var fileName = root + @"\" + path + @"\" + curPageNo + ".png";
+            //            pictureBox1.Image.Save(fileName, System.Drawing.Imaging.ImageFormat.Png);
+            //        }
+            //        curPageNo++;
+            //        maxPageNo = curPageNo;
+            //        maxPageDrawed = false;
+            //        maxPageSaved = false;
+            //        review = false;
+
+
+            //        //g = Graphics.FromImage(bitmap);
+            //        //g.Clear(pictureBox1.BackColor);
+            //        pictureBox1.Image = null;
+            //        //g = Graphics.FromImage(pictureBox1.Image);
+            //        g.Clear(pictureBox1.BackColor);
+
+            //        working = true;
+            //        return;
+            //    }
+            //    else
+            //    {
+            //        maxPageDrawed = false;
+            //        maxPageSaved = false;
+            //        review = false;
+            //        working = true;
+            //        return;
+            //    }
+
+            //}
+            //else if (curPageNo < maxPageNo)
+            //{
+            //    curPageNo++;
+
+            //    if (curPageNo < maxPageNo) { 
+            //        var fileName = root + @"\" + path + @"\" + curPageNo + ".png";
+            //        pictureBox1.Load(fileName);
+            //    }
+
+            //}
         }
 
 
@@ -252,60 +357,7 @@ namespace draw_direct
             }
         }
 
-        private void Draw2()
-        {
-
-            //Point currentPoint = new Point(e.X, e.Y);
-            //g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;//消除锯齿
-            //g.DrawLine(new Pen(Color.Blue, 2), p2, currentPoint);
-
-            //p2.X = currentPoint.X;
-            //p2.Y = currentPoint.Y;
-            for (int i = 0; i < dataList.Count; i++)
-            {
-                Dot[] dotList = parseToDot(dataList[i]);
-                for (int j = 0; j < dotList.Length; j++)
-                {
-                    Dot dot = dotList[j];
-
-                    int x = (int)((1280.00 / 32767.00) * (dot.x - dot.width / 2));
-
-                    int y = (int)((800.00 / 32767.00) * (dot.y - dot.height / 2));
-
-                    float w = (float)((1280.00 / 32767.00) * dot.width);
-
-                    float h = (float)((800.00 / 32767.00) * dot.height);
-
-                    Point currentPoint = new Point(x, y);
-
-                    if (p2.IsEmpty && dot.status == 7)
-                    {
-                        p2 = currentPoint;
-                    }
-
-                    g = Graphics.FromImage(bitmap);
-                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;//消除锯齿
-                    Pen pen = new Pen(Color.Blue, 1);
-                    pen.StartCap = LineCap.Round;
-                    pen.EndCap = LineCap.Round;
-
-                    g.DrawRectangle(pen, x,y,w,h);
-                    pictureBox1.Image = (Image)bitmap;
-                    p2.X = currentPoint.X;
-                    p2.Y = currentPoint.Y;
-
-                    if (dot.status == 4)
-                    {
-                        p2 = Point.Empty;
-                    }
-
-                    pictureBox1.Refresh();
-
-                    Thread.Sleep(100);
-                }
-            }
-        }
-
+        
         private void Draw()
         {
 
@@ -340,8 +392,8 @@ namespace draw_direct
                     g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;//消除锯齿
 
                     Pen pen = new Pen(Color.Blue, w);
-                    pen.StartCap = LineCap.NoAnchor;
-                    pen.EndCap = LineCap.NoAnchor;
+                    pen.StartCap = LineCap.Round;
+                    pen.EndCap = LineCap.Round;
                     g.DrawLine(pen, p2, currentPoint);
                     pictureBox1.Image = (Image)bitmap;
                     p2.X = currentPoint.X;
@@ -359,6 +411,162 @@ namespace draw_direct
             }
         }
 
+        private void Draw2()
+        {
+
+            //Point currentPoint = new Point(e.X, e.Y);
+            //g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;//消除锯齿
+            //g.DrawLine(new Pen(Color.Blue, 2), p2, currentPoint);
+
+            //p2.X = currentPoint.X;
+            //p2.Y = currentPoint.Y;
+            for (int i = 0; i < dataList.Count; i++)
+            {
+                Dot[] dotList = parseToDot(dataList[i]);
+                for (int j = 0; j < dotList.Length; j++)
+                {
+                    Dot dot = dotList[j];
+
+                    int x = 200+ (int)((1280.00 / 32767.00) * (dot.x - dot.width / 2));
+
+                    int y = (int)((800.00 / 32767.00) * (dot.y - dot.height / 2));
+
+                    float w = (float)((1280.00 / 32767.00) * dot.width);
+
+                    float h = (float)((800.00 / 32767.00) * dot.height);
+
+                    Point currentPoint = new Point(x, y);
+
+                    if (p2.IsEmpty && dot.status == 7)
+                    {
+                        p2 = currentPoint;
+                    }
+
+                    g = Graphics.FromImage(bitmap);
+                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;//消除锯齿
+
+                    Pen pen = new Pen(Color.Blue, 3);
+                    pen.StartCap = LineCap.Round;
+                    pen.EndCap = LineCap.Round;
+
+                    g.DrawLine(pen, p2, currentPoint);
+                    pictureBox1.Image = (Image)bitmap;
+                    p2.X = currentPoint.X;
+                    p2.Y = currentPoint.Y;
+
+                    if (dot.status == 4)
+                    {
+                        p2 = Point.Empty;
+                    }
+
+                    pictureBox1.Refresh();
+
+                    Thread.Sleep(10);
+                }
+            }
+
+        }
+
+
+        private void Draw3()
+        {
+
+            for (int i = 0; i < dataList.Count; i++)
+            {
+                Dot[] dotList = parseToDot(dataList[i]);
+                for (int j = 0; j < dotList.Length; j++)
+                {
+                    Dot dot = dotList[j];
+
+                    int x = 400 + (int)((1280.00 / 32767.00) * dot.x);
+
+                    int y = (int)((800.00 / 32767.00) * dot.y);
+
+                    float w = (float)((1280.00 / 32767.00) * dot.width);
+
+
+
+                    Point currentPoint = new Point(x, y);
+
+                    if (p2.IsEmpty && dot.status == 7)
+                    {
+                        p2 = currentPoint;
+                    }
+
+                    g = Graphics.FromImage(bitmap);
+                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;//消除锯齿
+
+                    Pen pen = new Pen(Color.Blue, w);
+                    pen.StartCap = LineCap.Round;
+                    pen.EndCap = LineCap.Round;
+
+                    g.DrawLine(pen, p2, currentPoint);
+                    pictureBox1.Image = (Image)bitmap;
+                    p2.X = currentPoint.X;
+                    p2.Y = currentPoint.Y;
+
+                    if (dot.status == 4)
+                    {
+                        p2 = Point.Empty;
+                    }
+
+                    pictureBox1.Refresh();
+
+                    Thread.Sleep(10);
+                }
+            }
+
+        }
+
+        private void Draw4()
+        {
+
+            for (int i = 0; i < dataList.Count; i++)
+            {
+                Dot[] dotList = parseToDot(dataList[i]);
+                for (int j = 0; j < dotList.Length; j++)
+                {
+                    Dot dot = dotList[j];
+
+                    int x = 600 + (int)((1280.00 / 32767.00) * dot.x);
+
+                    int y = (int)((800.00 / 32767.00) * dot.y);
+
+                    float w = (float)((1280.00 / 32767.00) * dot.width);
+
+
+
+                    Point currentPoint = new Point(x, y);
+
+                    if (p2.IsEmpty && dot.status == 7)
+                    {
+                        p2 = currentPoint;
+                    }
+
+                    g = Graphics.FromImage(bitmap);
+                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;//消除锯齿
+
+                    Pen pen = new Pen(Color.Blue, 3);
+                    pen.StartCap = LineCap.Round;
+                    pen.EndCap = LineCap.Round;
+
+                    g.DrawLine(pen, p2, currentPoint);
+                    pictureBox1.Image = (Image)bitmap;
+                    p2.X = currentPoint.X;
+                    p2.Y = currentPoint.Y;
+
+                    if (dot.status == 4)
+                    {
+                        p2 = Point.Empty;
+                    }
+
+                    pictureBox1.Refresh();
+
+                    Thread.Sleep(10);
+                }
+            }
+
+        }
         private void initData()
         {
             dataList.Add("a107015002f80cb200c8020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000");
@@ -492,6 +700,27 @@ namespace draw_direct
             public int status;
             public int x, y;
             public int width, height;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Draw2();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Draw3();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            Draw4();
+        }
+
+        class Page
+        {
+            int no;
+            int save;
         }
     }   
 }
