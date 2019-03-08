@@ -437,10 +437,22 @@ namespace draw_direct
 
                     Point currentPoint = new Point(x, y);
 
-                    if (p2.IsEmpty && dot.status == 7)
+                    if (dot.status == 7)
                     {
-                        p2 = currentPoint;
+                        if (p2.IsEmpty)
+                        {
+                            p2 = currentPoint;
+                        }
+                        else
+                        {
+                            if (p2.X == currentPoint.X && p2.Y == currentPoint.Y)
+                            {
+                                continue;
+                            }
+                        }
+                    
                     }
+
 
                     g = Graphics.FromImage(bitmap);
                     g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;//消除锯齿
@@ -451,8 +463,10 @@ namespace draw_direct
 
                     g.DrawLine(pen, p2, currentPoint);
                     pictureBox1.Image = (Image)bitmap;
-                    p2.X = currentPoint.X;
-                    p2.Y = currentPoint.Y;
+                    //p2.X = currentPoint.X;
+                    //p2.Y = currentPoint.Y;
+
+                    p2 = currentPoint;
 
                     if (dot.status == 4)
                     {
@@ -523,47 +537,59 @@ namespace draw_direct
 
             for (int i = 0; i < dataList.Count; i++)
             {
+
+                //WriteLog(" data line No: "+i);
+
                 Dot[] dotList = parseToDot(dataList[i]);
+
+                int sumX = 0;
+                int sumY = 0;
+
+                int status = 0;
+
                 for (int j = 0; j < dotList.Length; j++)
                 {
                     Dot dot = dotList[j];
+                    sumX += dot.x;
+                    sumY += dot.y;
+                    status = dot.status;
+                }
+                int x = sumX / dotList.Length;
+                int y = sumY / dotList.Length;
 
-                    int x = 600 + (int)((1280.00 / 32767.00) * dot.x);
 
-                    int y = (int)((800.00 / 32767.00) * dot.y);
+                //float w = (float)((1280.00 / 32767.00) * dot.width);
 
-                    float w = (float)((1280.00 / 32767.00) * dot.width);
+                //WriteLog(" dot No: "+ j + ", x=" + x + ", y=" + y);
 
+                Point currentPoint = new Point(x, y);
 
+                if (p2.IsEmpty && status == 7)
+                {
+                    p2 = currentPoint;
+                }
 
-                    Point currentPoint = new Point(x, y);
+                g = Graphics.FromImage(bitmap);
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;//消除锯齿
 
-                    if (p2.IsEmpty && dot.status == 7)
-                    {
-                        p2 = currentPoint;
-                    }
+                Pen pen = new Pen(Color.Blue, 3);
+                pen.StartCap = LineCap.Round;
+                pen.EndCap = LineCap.Round;
 
-                    g = Graphics.FromImage(bitmap);
-                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;//消除锯齿
+                g.DrawLine(pen, p2, currentPoint);
+                pictureBox1.Image = (Image)bitmap;
+                p2.X = currentPoint.X;
+                p2.Y = currentPoint.Y;
 
-                    Pen pen = new Pen(Color.Blue, 3);
-                    pen.StartCap = LineCap.Round;
-                    pen.EndCap = LineCap.Round;
+                if (status == 4)
+                {
+                    p2 = Point.Empty;
+                }
 
-                    g.DrawLine(pen, p2, currentPoint);
-                    pictureBox1.Image = (Image)bitmap;
-                    p2.X = currentPoint.X;
-                    p2.Y = currentPoint.Y;
-
-                    if (dot.status == 4)
-                    {
-                        p2 = Point.Empty;
-                    }
-
-                    pictureBox1.Refresh();
+                pictureBox1.Refresh();
 
                     Thread.Sleep(10);
-                }
+                
             }
 
         }
@@ -721,6 +747,44 @@ namespace draw_direct
         {
             int no;
             int save;
+        }
+
+        //日志写法
+        public void WriteLog(string msg)
+        {
+            string filePath = AppDomain.CurrentDomain.BaseDirectory + "Log";  //路径
+            if (!Directory.Exists(filePath))  //不存在则创建
+            {
+                Directory.CreateDirectory(filePath);
+            }
+            //string logPath = AppDomain.CurrentDomain.BaseDirectory + "Log\\" + DateTime.Now.ToString("yyyy-MM-dd") + ".txt";  //文档路径
+            string logPath = "D:\\" + DateTime.Now.ToString("yyyy-MM-dd") + ".txt";  //文档路径
+            try
+            {
+                using (StreamWriter sw = File.AppendText(logPath))
+                {
+                    sw.WriteLine("消息：" + msg);
+                    sw.WriteLine("时间：" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                    sw.WriteLine("**************************************************");
+                    sw.WriteLine();
+                    sw.Flush();
+                    sw.Close();
+                    sw.Dispose();
+                }
+            }
+            catch (IOException e)
+            {
+                using (StreamWriter sw = File.AppendText(logPath))
+                {
+                    sw.WriteLine("异常：" + e.Message);
+                    sw.WriteLine("时间：" + DateTime.Now.ToString("yyy-MM-dd HH:mm:ss"));
+                    sw.WriteLine("**************************************************");
+                    sw.WriteLine();
+                    sw.Flush();
+                    sw.Close();
+                    sw.Dispose();
+                }
+            }
         }
     }   
 }
